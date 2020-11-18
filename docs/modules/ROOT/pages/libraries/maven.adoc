@@ -8,8 +8,8 @@ This library allows you to perform Maven commands. It requires installing Maven 
 |===
 | Step | Description
 
-| ``run(Map params = [:], String phase)``
-| Runs the maven phase given along with the optional parameters passed through the params map. Named parameters
+| ``run(Map params = [:], ArrayList<String> phases)``
+| Runs the maven phases given along with the optional parameters passed through the params map. Named parameters
 include goals (List of Strings), properties (Map with String-String pairs), and profiles (List of Strings).
 
 |===
@@ -17,7 +17,7 @@ include goals (List of Strings), properties (Map with String-String pairs), and 
 == Example Usage
 [source,groovy]
 ----
-maven.run("verify", profiles: ["integration-test"])
+maven.run(["clean", "install"], profiles: ["integration-test"])
 ----
 
 

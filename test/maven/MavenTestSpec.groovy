@@ -6,7 +6,7 @@ import JTEPipelineSpecification
 class MavenTestSpec extends JTEPipelineSpecification {
 
     def mvn = null
-    def PHASE = "install"
+    def PHASES = ["clean", "install"]
     def INSTALL_COMMAND = "mvn clean install "
 
     static class DummyException extends RuntimeException {
@@ -24,7 +24,7 @@ class MavenTestSpec extends JTEPipelineSpecification {
         mvn.getBinding().setVariable("config", [:])
         when:
             try{
-                mvn.run(PHASE)
+                mvn.run(PHASES)
             } catch (DummyException e) {}
         then:
             1 * getPipelineMock("error")("Must supply the installed Maven version's ID") >> {throw new DummyException("No mavenId supplied")}
@@ -34,7 +34,7 @@ class MavenTestSpec extends JTEPipelineSpecification {
 
     def "Run with phase only" () {
         when:
-            mvn.run(PHASE)
+            mvn.run(PHASES)
         then:
             1 * getPipelineMock("stage")("Maven", _)
         then:
@@ -56,14 +56,14 @@ class MavenTestSpec extends JTEPipelineSpecification {
             1 * getPipelineMock("error")("Must supply phase for Maven") >> {throw new DummyException("No phase supplied")}
     }
 
-    def "Using goals, properties, and profiles" () {
+    def "Using multiple goals, properties, and profiles" () {
         ArrayList<String> goals = ["dependency:copy-dependencies", "resources:resources"]
         Map<String, String> properties = ["null.value.property": null, "another.property": "X"]
         ArrayList<String> profiles = ["integration-test","ci"]
 
         String expected = INSTALL_COMMAND + goals.join(" ") + " -Dnull.value.property -Danother.property = X " + "-Pintegration-test,ci"
         when:
-            mvn.run([goals: goals, properties: properties, profiles: profiles], PHASE)
+            mvn.run([goals: goals, properties: properties, profiles: profiles], PHASES)
         then:
             1 * getPipelineMock("stage")("Maven", _)
         then:
